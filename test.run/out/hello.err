@@ -1,0 +1,1 @@
+./test_translate_file.sh: line 31: ./out/hello: No such file or directory
