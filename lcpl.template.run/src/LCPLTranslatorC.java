@@ -4,6 +4,7 @@ import ro.pub.cs.lcpl.*;
 public class LCPLTranslatorC {
 	public String translate(Program p)
 	{
+		
 		/* TO DO - traverse the AST and fill in the following sections. This is an example based on hello.lcpl
 		 *  
 		 * class Main inherits IO
@@ -17,13 +18,22 @@ public class LCPLTranslatorC {
 		String headers=                 "#include \"lcpl_runtime.h\" \n";
 		
 		/* static data : strings used in the program */
-		String stringConstants=         "struct TString SC1={ &RString, 12, \"Hello world!\" }; \n";
+		String stringConstants;
+		_GlobalStringRuntime gsr = new _GlobalStringRuntime();
+		gsr.searchProgramForStrings(p);
+		stringConstants = gsr.getStringCode();
 		
 		/* object layouts: pointer to RTTI followed by attributes */
-		String objectLayouts=           "struct TMain { struct __lcpl_rtti *rtti; }; \n";
+		String objectLayouts;
+		_RTTI_Layout rttiL = new _RTTI_Layout();
+		rttiL.generateLayoutCode(p);
+		objectLayouts = rttiL.getLayoutCode();
 		
 		/* static data : class names, as strings */
-		String classNames=              "struct TString NMain={ &RString, 4, \"Main\" }; \n";
+		String classNames;
+		_ClassName cn = new _ClassName();
+		cn.generateClassNames(p);
+		classNames = cn.getClassNameCode();
 		
 		/* declarations of methods in the program, including constructors */
 		String constructorDeclarations= "void Main_init(struct TMain *self); \n";
@@ -41,7 +51,9 @@ public class LCPLTranslatorC {
 		
 		/* create a new Main object and call its main method */
 		String startup=                 "void startup(void) { struct TMain *main=__lcpl_new(&RMain); M4_Main_main(main); } \n";
-		System.out.println("na");
+		System.out.println(objectLayouts);
 		return headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+methods+startup;
+		
+		
 	}
 }
