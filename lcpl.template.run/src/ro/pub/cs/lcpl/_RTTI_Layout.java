@@ -23,8 +23,6 @@ public class _RTTI_Layout {
 			}
 	}
 	
-	
-	
 	public _RTTI_Layout() {
 		this.layoutCode = "";
 	}

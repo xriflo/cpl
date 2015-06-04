@@ -37,7 +37,7 @@ public class _GlobalStringRuntime {
 			/* generate the C code for strings */
 			stringCode +=
 					String.format("struct TString SC%d={ &RString, %d, \"%s\" };\n",
-							this.globalIndex,sc.getValue().length(), sc.getValue());
+							this.globalIndex,sc.getValue().length(), _FuncLibrary.convertSpecialCh(sc.getValue()));
 			this.globalIndex = this.globalIndex + 1;
 		}
 		else if(e instanceof Block) {

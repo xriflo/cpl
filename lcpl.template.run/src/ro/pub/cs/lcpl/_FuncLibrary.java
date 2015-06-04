@@ -5,6 +5,20 @@ import java.util.LinkedHashMap;
 
 public class _FuncLibrary {
 
+	public static final String convertSpecialCh(String lcpl) {
+		if(lcpl=="\\")
+			return "\\\\";
+		else if(lcpl=="\"")
+			return lcpl;
+		else if(lcpl.equals("\n")) {
+			return "\\n";
+		}
+		else if(lcpl=="\r")
+			return "\\r";
+		else
+			return lcpl;
+	}
+	
 	public static final String convert (String lcpl) {
 		if(lcpl.equals("String")) return "struct TString*";
 		else if(lcpl.equals("Int")) return "int";
