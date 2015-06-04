@@ -43,12 +43,15 @@ public class LCPLTranslatorC {
 		
 		/* declaration of methods */
 		String methodDeclarations;
-		//"void M4_Main_main(struct TMain *self); \n";
 		_MethodDeclarations md = new _MethodDeclarations();
 		md.generateMethodDeclCode(p);
 		methodDeclarations = md.getMethodDeclCode();
+		
 		/* runtime type information (RTTI) - class name, class size, parent class, vtable */
-		String vtables=                 "struct __lcpl_rtti RMain = { &NMain, sizeof(struct TMain), &RIO, { Main_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy, M2_IO_in, M2_IO_out, M4_Main_main } }; \n";
+		String vtables;
+		_RTTI_Layout rtti = new _RTTI_Layout();
+		rtti.generateLayoutCode(p);
+		vtables = rtti.getLayoutCode();
 		
 		/* definitions of methods in the program, including constructors */
 		String constructors=            "void Main_init(struct TMain *self){ IO_init((struct TIO*)self); } \n";
@@ -59,7 +62,7 @@ public class LCPLTranslatorC {
 		
 		/* create a new Main object and call its main method */
 		String startup=                 "void startup(void) { struct TMain *main=__lcpl_new(&RMain); M4_Main_main(main); } \n";
-		System.out.println(methodDeclarations);
+		System.out.println(vtables);
 		return headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+methods+startup;
 		
 		
