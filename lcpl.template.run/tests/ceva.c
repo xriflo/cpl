@@ -1,21 +1,24 @@
 #include "lcpl_runtime.h" 
 TString SC_empty={ &RString, 0, "" };
-struct TString SC1={ &RString, 1, "a" };
-struct TString SC2={ &RString, 1, "b" };
-struct TString SC3={ &RString, 1, "c" };
-struct TString SC4={ &RString, 1, " " };
-struct __lcpl_rtti RMain = { &NMain, sizeof(struct TMain), &RObject, { Main_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy, M4_Main_sum, M4_Main_first, M4_Main_recurse, M4_Main_fact, M4_Main_main} };
+struct TString SC1={ &RString, 1, "\n" };
+struct __lcpl_rtti Rj = { &Nj, sizeof(struct Tj), &RObject, { j_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy} };
+struct __lcpl_rtti RMain = { &NMain, sizeof(struct TMain), &RObject, { Main_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy, M4_Main_main} };
+struct __lcpl_rtti Ri = { &Ni, sizeof(struct Ti), &Rj, { i_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy, M1_i_I, M1_i_J, M1_i_i} };
+struct TString Ni={ &RString, 1, "i" };
+struct TString Nj={ &RString, 1, "j" };
 struct TString NMain={ &RString, 4, "Main" };
+void i_init(struct Ti *self);
+void j_init(struct Tj *self);
 void Main_init(struct TMain *self);
-typedef int (*TF_M4_Main_sum)(struct TMain*, int a, int b);
-typedef struct TString* (*TF_M4_Main_first)(struct TMain*, struct TString* x, struct TString* y, struct TString* z);
-typedef int (*TF_M4_Main_recurse)(struct TMain*, int x, struct TString* y, int z);
-typedef int (*TF_M4_Main_fact)(struct TMain*, int n);
+typedef void (*TF_M1_i_I)(struct Ti*);
+typedef void (*TF_M1_i_J)(struct Ti*);
+typedef int (*TF_M1_i_i)(struct Ti*, int i);
+void M1_i_I(struct Ti* self);
+void M1_i_J(struct Ti* self);
+int M1_i_i(struct Ti* self, int i);
+
+
 typedef void (*TF_M4_Main_main)(struct TMain*);
-int M4_Main_sum(struct TMain* self, int a, int b);
-struct TString* M4_Main_first(struct TMain* self, struct TString* x, struct TString* y, struct TString* z);
-int M4_Main_recurse(struct TMain* self, int x, struct TString* y, int z);
-int M4_Main_fact(struct TMain* self, int n);
 void M4_Main_main(struct TMain* self);
 
 typedef void (*TF_M6_Object_abort)(struct TObject*);
@@ -28,8 +31,21 @@ typedef struct TString* (*TF_M2_IO_in)(struct TIO*);
 typedef int (*TF_M6_String_length)(struct TString*);
 typedef int (*TF_M6_String_toInt)(struct TString*);
 
-struct __lcpl_rtti RMain = { &NMain, sizeof(struct TMain), &RObject, { Main_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy, M4_Main_sum, M4_Main_first, M4_Main_recurse, M4_Main_fact, M4_Main_main} };
-void Main_init(struct TMain *self){ IO_init((struct TIO*)self); } 
+struct __lcpl_rtti Rj = { &Nj, sizeof(struct Tj), &RObject, { j_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy} };
+struct __lcpl_rtti RMain = { &NMain, sizeof(struct TMain), &RObject, { Main_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy, M4_Main_main} };
+struct __lcpl_rtti Ri = { &Ni, sizeof(struct Ti), &Rj, { i_init, M6_Object_abort, M6_Object_typeName, M6_Object_copy, M1_i_I, M1_i_J, M1_i_i} };
+void j_init(struct Tj *self){
+Object_init((struct TObject*)self);
+
+}
+void Main_init(struct TMain *self){
+Object_init((struct TObject*)self);
+self->i = ((struct Tj*)__lcpl_cast(__lcpl_new(&Ri), Rj));
+}
+void i_init(struct Ti *self){
+j_init((struct Tj*)self);
+
+}
 void M4_Main_main(struct TMain *self) 
 {
   typedef struct TIO* (*TF1)(struct TIO *, struct TString *); 

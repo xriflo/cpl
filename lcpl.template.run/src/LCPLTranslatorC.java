@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 import ro.pub.cs.lcpl.*;
 
 
@@ -52,9 +54,25 @@ public class LCPLTranslatorC {
 		_RTTI_Layout rtti = new _RTTI_Layout();
 		rtti.generateLayoutCode(p);
 		vtables = rtti.getLayoutCode();
-		
+		/*
+		System.out.println("==========");
+		for(LCPLClass c: rtti.vt.keySet()) {
+			System.out.print(c.getName()+":{");
+			HashMap<Method, Integer> vtc = rtti.vt.get(c);
+			for(Method m : vtc.keySet()) {
+				System.out.print("["+m.getName()+","+vtc.get(m)+"],");
+			}
+			System.out.println();
+		}
+		System.out.println("==========");
+		*/
 		/* definitions of methods in the program, including constructors */
-		String constructors=            "void Main_init(struct TMain *self){ IO_init((struct TIO*)self); } \n";
+		String constructors;
+		//"void Main_init(struct TMain *self){ IO_init((struct TIO*)self); } \n";
+		_ClassInit ci = new _ClassInit(rtti.vt);
+		ci.generateMethodsCode(p, rtti.getSortedClassesList());
+		constructors = ci.getInitMethodsCode();
+		
 		String methods=                 "void M4_Main_main(struct TMain *self) \n"
 				                      + "{\n  typedef struct TIO* (*TF1)(struct TIO *, struct TString *); \n"
 				                      + "  ((TF1)(self->rtti->vtable[5])) ((struct TIO *)self,&SC1); \n} \n";
@@ -62,7 +80,7 @@ public class LCPLTranslatorC {
 		
 		/* create a new Main object and call its main method */
 		String startup=                 "void startup(void) { struct TMain *main=__lcpl_new(&RMain); M4_Main_main(main); } \n";
-		System.out.println(vtables);
+		System.out.println(constructors);
 		return headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+methods+startup;
 		
 		
