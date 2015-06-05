@@ -75,6 +75,41 @@ public class _RTTI_Layout {
 				this.layoutCode += "} };\n";
 				this.vt.put(c, vt_c);
 			}
+			else {
+				Integer pos=1;
+				HashMap<Method, Integer> vt_c = new HashMap<Method, Integer>();
+				if(c.getName().matches("Object")) {
+					for(Feature f : c.getFeatures()) {
+						if(f instanceof Method) {
+							Method m = (Method)f;
+							vt_c.put(m, pos);
+							pos++;
+						}
+					}
+				}
+				if(c.getName().matches("String|IO")) {
+					for(LCPLClass auxc : p.getClasses()) {
+						if(auxc.getName().matches("Object")) {
+							for(Feature f : auxc.getFeatures()) {
+								if(f instanceof Method) {
+									Method m = (Method)f;
+									vt_c.put(m, pos);
+									pos++;
+								}
+							}
+						}
+					}
+					for(Feature f : c.getFeatures()) {
+						if(f instanceof Method) {
+							Method m = (Method)f;
+							vt_c.put(m, pos);
+							pos++;
+						}
+					}
+					
+				}
+				this.vt.put(c, vt_c);
+			}
 	}
 	
 	private LinkedHashMap<String, Method> createMethods(Program p, LCPLClass c, LinkedHashMap<String, Method> methods) {

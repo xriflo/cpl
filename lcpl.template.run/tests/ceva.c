@@ -40,11 +40,48 @@ Object_init((struct TObject*)self);
 }
 void Main_init(struct TMain *self){
 Object_init((struct TObject*)self);
-self->i = ((struct Tj*)__lcpl_cast(__lcpl_new(&Ri), Rj));
+self->i = ((struct Tj*)__lcpl_cast(__lcpl_new(&Ri), &Rj))
 }
 void i_init(struct Ti *self){
 j_init((struct Tj*)self);
 
+}
+void M4_Main_main(struct TMain* self){
+({
+({
+struct Ti* _l_i = ((struct Ti*)__lcpl_cast(self->i, &Ri));
+(({
+((TF_M2_IO_out)(self->rtti->vtable[4]))((struct Ti*)self &SC1);
+}));
+});
+;
+});
+}
+void M1_i_I(struct Ti* self){
+({
+self->i = self->J;
+});
+}
+void M1_i_J(struct Ti* self){
+({
+self->J = self->i;
+});
+}
+int M1_i_i(struct Ti* self, int i){
+return({
+self->J = (i)+(1);
+((TF_M1_i_I)(self->rtti->vtable[4]))((struct Ti*)self);
+self->J = (i)*(2);
+({
+int _l_i = (i)+(2);
+(({
+_l_i = (_l_i)-(self->J);
+((TF_M1_i_J)(self->rtti->vtable[5]))((struct Ti*)self);
+(self->J)*(_l_i);
+}));
+});
+;
+});
 }
 void M4_Main_main(struct TMain *self) 
 {

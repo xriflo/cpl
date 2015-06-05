@@ -47,6 +47,7 @@ public class _MethodDeclarations {
 				
 			}
 			else {
+				
 				for(Feature f : c.getFeatures())
 					if(f instanceof Method) {
 						Method m = (Method)f;

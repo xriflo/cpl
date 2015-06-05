@@ -69,8 +69,9 @@ public class LCPLTranslatorC {
 		/* definitions of methods in the program, including constructors */
 		String constructors;
 		//"void Main_init(struct TMain *self){ IO_init((struct TIO*)self); } \n";
-		_ClassInit ci = new _ClassInit(rtti.vt);
+		_ClassInit ci = new _ClassInit(rtti.vt, gsr.getLiterals());
 		ci.generateMethodsCode(p, rtti.getSortedClassesList());
+	
 		constructors = ci.getInitMethodsCode();
 		
 		String methods=                 "void M4_Main_main(struct TMain *self) \n"
@@ -81,6 +82,7 @@ public class LCPLTranslatorC {
 		/* create a new Main object and call its main method */
 		String startup=                 "void startup(void) { struct TMain *main=__lcpl_new(&RMain); M4_Main_main(main); } \n";
 		System.out.println(constructors);
+		//System.out.println(stringConstants);
 		return headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+methods+startup;
 		
 		
