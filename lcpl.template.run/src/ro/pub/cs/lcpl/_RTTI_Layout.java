@@ -99,13 +99,24 @@ public class _RTTI_Layout {
 							}
 						}
 					}
-					for(Feature f : c.getFeatures()) {
-						if(f instanceof Method) {
-							Method m = (Method)f;
-							vt_c.put(m, pos);
-							pos++;
+					if(c.getName().matches("String"))
+						for(Feature f : c.getFeatures()) {
+							if(f instanceof Method) {
+								Method m = (Method)f;
+								if(c.getName().matches("IO"))
+								vt_c.put(m, pos);
+								pos++;
+							}
 						}
-					}
+					if(c.getName().matches("IO"))
+						for(Integer i=c.getFeatures().size()-1; i>=0; i--) {
+							if(c.getFeatures().get(i) instanceof Method) {
+								Method m = (Method)c.getFeatures().get(i);
+								vt_c.put(m, pos);
+								pos++;
+							}
+						}
+					
 					
 				}
 				this.vt.put(c, vt_c);
@@ -116,11 +127,23 @@ public class _RTTI_Layout {
 		
 		if(c==null) return methods;
 		else {
-			for(Integer i=c.getFeatures().size()-1; i>=0; i--) {
-				if(c.getFeatures().get(i) instanceof Method) {
-					Method m = (Method)c.getFeatures().get(i);
-					if(methods.get(m.getName())==null) {
-						methods.put(m.getName(), m);
+			if(c.getName().matches("IO")) {
+				for(Feature f : c.getFeatures()) {
+					if(f instanceof Method) {
+						Method m = (Method)f;
+						if(methods.get(m.getName())==null) {
+							methods.put(m.getName(), m);
+						}
+					}
+				}
+			}
+			else {
+				for(Integer i=c.getFeatures().size()-1; i>=0; i--) {
+					if(c.getFeatures().get(i) instanceof Method) {
+						Method m = (Method)c.getFeatures().get(i);
+						if(methods.get(m.getName())==null) {
+							methods.put(m.getName(), m);
+						}
 					}
 				}
 			}

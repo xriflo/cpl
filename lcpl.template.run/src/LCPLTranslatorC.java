@@ -83,6 +83,7 @@ public class LCPLTranslatorC {
 		String startup=                 "void startup(void) { struct TMain *main=__lcpl_new(&RMain); M4_Main_main(main); } \n";
 		System.out.println(constructors);
 		//System.out.println(stringConstants);
+		System.out.println(headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+methods+startup);
 		return headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+methods+startup;
 		
 		

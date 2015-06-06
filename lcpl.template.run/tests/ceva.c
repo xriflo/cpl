@@ -51,7 +51,16 @@ void M4_Main_main(struct TMain* self){
 ({
 struct Ti* _l_i = ((struct Ti*)__lcpl_cast(self->i, &Ri));
 (({
-((TF_M2_IO_out)(self->rtti->vtable[4]))((struct Ti*)self &SC1);
+({
+struct TIO* _t1 = ({
+struct TIO* _t2 = __lcpl_new(&RIO);
+((TF_M2_IO_out)(_t2->rtti->vtable[5]))((struct TIO*)_t2, __lcpl_intToString(({
+((TF_M1_i_i)(self->rtti->vtable[6]))((struct Ti*)self 4)});));
+});
+});;
+((TF_M2_IO_out)(_t1->rtti->vtable[5]))((struct TIO*)_t2, &SC1);
+});
+});;
 }));
 });
 ;
@@ -70,13 +79,15 @@ self->J = self->i;
 int M1_i_i(struct Ti* self, int i){
 return({
 self->J = (i)+(1);
-((TF_M1_i_I)(self->rtti->vtable[4]))((struct Ti*)self);
+({
+((TF_M1_i_I)(self->rtti->vtable[4]))((struct Ti*)self)});;
 self->J = (i)*(2);
 ({
 int _l_i = (i)+(2);
 (({
 _l_i = (_l_i)-(self->J);
-((TF_M1_i_J)(self->rtti->vtable[5]))((struct Ti*)self);
+({
+((TF_M1_i_J)(self->rtti->vtable[5]))((struct Ti*)self)});;
 (self->J)*(_l_i);
 }));
 });

@@ -10,6 +10,8 @@ public class _Evaluator {
 	public String code = "";
 	public HashMap<LCPLClass, HashMap<Method, Integer>> vt = new HashMap<LCPLClass, HashMap<Method, Integer>>();
 	public LinkedHashMap<StringConstant, Integer> literals = new LinkedHashMap<StringConstant, Integer>();
+	public HashMap<Expression, String> temp_var;
+	public Integer temp_pos;
 	
 	public void evaluate(Expression e) {
 		if(e instanceof Block) {
@@ -33,7 +35,9 @@ public class _Evaluator {
 			//this.code += "Cast\n";
 			Cast c = (Cast)e;
 			if(c.getE1().getType().equals("Int") && c.getType().equals("String")) {
-				
+				this.code += "__lcpl_intToString(";
+				evaluate(c.getE1());
+				this.code += ")";
 			}
 			else if(c.getE1().getType().equals("String") && c.getType().equals("Int")) {
 				
@@ -115,24 +119,58 @@ public class _Evaluator {
 			
 			if(e instanceof Dispatch) {
 				Dispatch d = (Dispatch)e;
-				
-				this.code += String.format("((TF_M%d_%s_%s)(self->rtti->vtable[%d]))",
-						d.getMethod().getParent().getName().length(),
-						d.getMethod().getParent().getName(),
-						d.getMethod().getName(),
-						this.vt.get(d.getMethod().getParent()).get(d.getMethod())
-						);
-				this.code += String.format("((struct Ti*)self");
-				if(d.getArguments()!=null && d.getArguments().size()!=0) {
-					this.code += " ";
-					for(Expression arg : d.getArguments()) {
-						evaluate(arg);
-						this.code +=", ";
+				this.code += "({\n";
+				if(d.getObject() instanceof Symbol) {
+					
+					this.code += String.format("((TF_M%d_%s_%s)(self->rtti->vtable[%d]))",
+							d.getMethod().getParent().getName().length(),
+							d.getMethod().getParent().getName(),
+							d.getMethod().getName(),
+							this.vt.get(d.getMethod().getParent()).get(d.getMethod())
+							);
+					this.code += String.format("((struct Ti*)self");
+					if(d.getArguments()!=null && d.getArguments().size()!=0) {
+						this.code += " ";
+						for(Expression arg : d.getArguments()) {
+							evaluate(arg);
+							this.code +=", ";
+						}
+						this.code = this.code.substring(0, this.code.length()-2);
 					}
-					this.code = this.code.substring(0, this.code.length()-2);
+					
+					this.code += ")";
 				}
 				
-				this.code += ")";
+				if(! (d.getObject() instanceof Symbol)) {
+					
+					this.code += String.format("%s _t%d = ",
+							_FuncLibrary.convert(d.getObject().getType()),
+							this.temp_pos);
+					
+					this.temp_var.put(d.getObject(), "_t"+this.temp_pos);
+					this.temp_pos++;
+					evaluate(d.getObject());
+					this.code += ";\n";
+					
+					this.code += String.format("((TF_M%d_%s_%s)(%s->rtti->vtable[%d]))((%s)_t2, ",
+							d.getObject().getType().length(),
+							d.getObject().getTypeData().getName(),
+							d.getMethod().getName(),
+							this.temp_var.get(d.getObject()),
+							this.vt.get(d.getObject().getTypeData()).get(d.getMethod()),
+							_FuncLibrary.convert(d.getObject().getTypeData().getName()),
+							this.temp_var.get(d.getObject()));
+					for(Expression arg : d.getArguments()) {
+						evaluate(arg);
+						this.code += ", ";
+					}
+					this.code = this.code.substring(0, this.code.length()-2);
+					this.code += ");\n";
+					this.code += "});\n";
+				
+					
+				}
+				this.code += "});";
 			}
 			else if(e instanceof StaticDispatch){
 				StaticDispatch sd = (StaticDispatch)e;
@@ -151,6 +189,7 @@ public class _Evaluator {
 		}
 		else if(e instanceof VoidConstant) {
 			VoidConstant vc = (VoidConstant)e;
+			this.code += "NULL";
 		}
 		else if(e instanceof UnaryOp) {
 			if(e instanceof UnaryMinus) {

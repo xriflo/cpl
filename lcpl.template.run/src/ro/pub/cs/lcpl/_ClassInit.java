@@ -95,6 +95,8 @@ public class _ClassInit {
 		this.evaluator = new _Evaluator();
 		this.evaluator.vt = vt;
 		this.evaluator.literals = literals;
+		this.evaluator.temp_pos = 1;
+		this.evaluator.temp_var = new HashMap<Expression, String>();
 		
 	}
 	
