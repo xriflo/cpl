@@ -5,18 +5,26 @@ import java.util.LinkedHashMap;
 
 public class _FuncLibrary {
 
-	public static final String convertSpecialCh(String lcpl) {
-		if(lcpl=="\\")
-			return "\\\\";
-		else if(lcpl=="\"")
-			return lcpl;
-		else if(lcpl.equals("\n")) {
-			return "\\n";
+	public static final String convertSpecialCh(String str) {
+		String retStr = "";
+		
+		for(Integer i=0; i<str.length(); i++) {
+			char lcpl = str.charAt(i);
+			
+			if(lcpl=='\\')
+				retStr += "\\\\";
+			else if(lcpl=='\"')
+				retStr += "\\\"";
+			else if(lcpl=='\n') {
+				retStr += "\\n";
+			}
+			else if(lcpl=='\r')
+				retStr += "\\r";
+			else
+				retStr += lcpl;
 		}
-		else if(lcpl=="\r")
-			return "\\r";
-		else
-			return lcpl;
+		
+		return retStr;
 	}
 	
 	public static final String convert (String lcpl) {

@@ -274,9 +274,26 @@ public class _Evaluator {
 				
 				}*/
 				if(d.getObject() instanceof Symbol) {
+					boolean found = false;
+					LCPLClass where = (LCPLClass)d.getObject().getTypeData();
+					
+					while(!found) {
+						for(Feature f : where.getFeatures()) {
+							if(f instanceof Method) {
+								Method m = (Method)f;
+								if(d.getMethod().getName().equals(m.getName())) {
+									found = true;
+									break;
+								}
+							}
+						}
+						if(!found)
+							where = where.getParentData();
+					}
+					
 					this.code += String.format("((TF_M%d_%s_%s)(",
-							d.getObject().getTypeData().getName().length(),
-							d.getObject().getTypeData().getName(),
+							where.getName().length(),
+							where.getName(),
 							d.getMethod().getName());
 					evaluate(d.getObject());
 					this.code += String.format("->rtti->vtable[%d]))",
@@ -299,7 +316,20 @@ public class _Evaluator {
 			}
 			else if(e instanceof StaticDispatch){
 				StaticDispatch sd = (StaticDispatch)e;
+				this.code += String.format("M%d_%s_%s((%s)",
+						sd.getObject().getTypeData().getName().length(),
+						sd.getObject().getTypeData().getName(),
+						sd.getMethod().getName(),
+						_FuncLibrary.convert(sd.getObject().getTypeData().getName()));
+				evaluate(sd.getObject());
+				this.code += ", ";
+				for(Expression arg : sd.getArguments()) {
+					evaluate(arg);
+					this.code += ", ";
+				}
 				
+				this.code = this.code.substring(0, this.code.length()-2);
+				this.code += ")";
 			}
 		}
 		else if(e instanceof IntConstant) {
