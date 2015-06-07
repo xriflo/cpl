@@ -34,6 +34,7 @@ public class _ClassInit {
 							this.evaluator.code = "";
 							this.evaluator.evaluate(a.getInit());
 							this.initMethodsCode += this.evaluator.code;
+							this.initMethodsCode += ";";
 							
 						}
 						
@@ -63,15 +64,15 @@ public class _ClassInit {
 						this.initMethodsCode = this.initMethodsCode.substring(0, this.initMethodsCode.length()-2);
 						this.initMethodsCode += "){\n";
 						if(!m.getReturnType().equals("void"))
-							this.initMethodsCode += "return";
-						this.initMethodsCode += "({\n";
+							this.initMethodsCode += "return ";
+						
 						//---------------------------
 						evaluator.code = "";
 						evaluator.evaluate(m.getBody());
 						this.initMethodsCode += evaluator.code;
 						//----------------------------
-						this.initMethodsCode += "});\n";
-						this.initMethodsCode += "}\n";
+						//this.initMethodsCode += ";\n";
+						this.initMethodsCode += ";}\n";
 					}
 				}
 			}

@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 public class _GlobalStringRuntime {
 	private int globalIndex;
 	private LinkedHashMap<StringConstant, Integer> literals;
-	private String stringCode = "TString SC_empty={ &RString, 0, \"\" };\n";
+	private String stringCode = "struct TString SC_empty={ &RString, 0, \"\" };\n";
 	
 	
 	public void searchProgramForStrings(Program p) {

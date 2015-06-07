@@ -15,17 +15,53 @@ public class _Evaluator {
 	
 	public void evaluate(Expression e) {
 		if(e instanceof Block) {
+			Block b = (Block)e;
+			/*
 			//this.code += "Block\n";
 			Block b = (Block)e;
 			for(Expression expr : b.getExpressions()) {
 				evaluate(expr);
 				this.code += ";\n";
+			
 			}
+			*/
+			if(b.getExpressions()==null || (b.getExpressions().size()==0))
+				return;
+			
+			
+			if(b.getExpressions().size()==1) {
+				evaluate(b.getExpressions().get(0));
+			}
+			else {
+				this.code += "({\n";
+				for(Expression expr : b.getExpressions()) {
+					evaluate(expr);
+					this.code += ";\n";
+				}
+				this.code += "\n})";
+			}
+			
+			
+			
 			
 		}
 		else if(e instanceof IfStatement) {
-			
-
+			IfStatement ifs = (IfStatement)e;
+			if(ifs.getThenExpr()==null) {
+				this.code += "if(";
+				evaluate(ifs.getCondition());
+				this.code += ")";
+				evaluate(ifs.getIfExpr());
+			}
+			else {
+				this.code += "(";
+				evaluate(ifs.getCondition());
+				this.code += ") ? (";
+				evaluate(ifs.getIfExpr());
+				this.code += ") : (";
+				evaluate(ifs.getThenExpr());
+				this.code += ")";
+			}
 		}
 		else if(e instanceof WhileStatement) {
 			WhileStatement whs = (WhileStatement)e;
@@ -34,12 +70,15 @@ public class _Evaluator {
 		else if(e instanceof Cast) {
 			//this.code += "Cast\n";
 			Cast c = (Cast)e;
-			if(c.getE1().getType().equals("Int") && c.getType().equals("String")) {
+			/*
+			if(c.getE1().getTypeData().getName().equals("Int") && 
+					c.getTypeData().getName().equals("String")) {
 				this.code += "__lcpl_intToString(";
 				evaluate(c.getE1());
 				this.code += ")";
 			}
-			else if(c.getE1().getType().equals("String") && c.getType().equals("Int")) {
+			else if(c.getE1().getTypeData().getName().equals("String") && 
+					c.getTypeData().getName().equals("Int")) {
 				
 			}
 			else {
@@ -47,26 +86,66 @@ public class _Evaluator {
 						String.format("((%s)__lcpl_cast(",
 								_FuncLibrary.convert(c.getTypeData().getName()));
 				evaluate(c.getE1());
+				if(this.code.endsWith("\n"))
+					this.code = this.code.substring(0, this.code.length()-1);
+				if(this.code.endsWith(";"))
+					this.code = this.code.substring(0, this.code.length()-1);
 				this.code += String.format(", &R%s", c.getType());
 				this.code += "))";
 			}
-			
+			*/
+			if(c.getTypeData().getName().equals("Object")) {
+				evaluate(c.getE1());
+			}
+			else if(c.getE1().getTypeData().getName().equals("Int") &&
+					c.getTypeData().getName().equals("String")) {
+				
+			}
+			else if(c.getE1().getTypeData().getName().equals("String") &&
+					c.getTypeData().getName().equals("Int")) {
+				
+			}
+			else {
+				this.code +=
+						String.format("((%s)__lcpl_cast(",
+								_FuncLibrary.convert(c.getTypeData().getName()));
+				evaluate(c.getE1());
+				this.code += String.format(", &R%s))", c.getTypeData().getName());
+			}
 		}
 		else if(e instanceof LocalDefinition) {
 			//this.code += "LocalDef\n";
 			LocalDefinition ld = (LocalDefinition)e;
+			/*
 			this.code += "({\n";
-			this.code += String.format("%s _l_%s = ", _FuncLibrary.convert(ld.getType()),
+			this.code += String.format("%s _l_%s", _FuncLibrary.convert(ld.getType()),
 					ld.getName());
-			evaluate(ld.getInit());
+			if(ld.getInit()!=null) {
+				this.code += " = ";
+				evaluate(ld.getInit());
+			}
 			this.code += ";\n";
-			this.code += "(({\n";
+			this.code += "(";
 			evaluate(ld.getScope());
-			this.code += "}));\n";
+			this.code += ");\n";
 					
-			this.code += "});\n";
+			this.code += "})";
 			
+			*/
 			
+			this.code += "({\n";
+			this.code += String.format("%s _l_%s", _FuncLibrary.convert(ld.getType()),
+					ld.getName());
+			if(ld.getInit()!=null) {
+				this.code += " = ";
+				evaluate(ld.getInit());
+			}
+			this.code += ";\n";
+			this.code += "(";
+			evaluate(ld.getScope());
+			this.code += ");\n";
+			
+			this.code += "})\n";
 		}
 		else if(e instanceof NewObject) {
 			//this.code += "NewObj\n";
@@ -78,6 +157,7 @@ public class _Evaluator {
 		else if(e instanceof Assignment) {
 			//this.code += "Assignment\n";
 			Assignment a = (Assignment)e;
+			
 			if(a.getSymbolData() instanceof Attribute) {
 				Attribute attr = (Attribute)a.getSymbolData();
 				this.code += String.format("self->%s", attr.getName());
@@ -87,10 +167,10 @@ public class _Evaluator {
 			}
 			
 			else if(a.getSymbolData() instanceof FormalParam) {
-				
+				this.code += a.getSymbolData().getName();
 			}
 			else {
-				
+				this.code += "whatchu doin' here?!";
 			}
 			this.code += " = ";
 			evaluate(a.getE1());
@@ -98,7 +178,7 @@ public class _Evaluator {
 		}
 		else if(e instanceof Symbol) {
 			Symbol s = (Symbol)e;
-			
+			/*
 			if(s.getVariable() instanceof Attribute) {
 				this.code += String.format("self->%s", s.getVariable().getName());
 			}
@@ -109,6 +189,13 @@ public class _Evaluator {
 				this.code += ("_l_"+s.getVariable().getName());
 			}
 			
+			*/
+			if(s.getVariable() instanceof Attribute)
+				this.code += String.format("self->%s", s.getVariable().getName());
+			if(s.getVariable() instanceof FormalParam)
+				this.code += s.getVariable().getName();
+			if(s.getVariable() instanceof LocalDefinition)
+				this.code += ("_l_"+s.getVariable().getName());
 			
 		}
 		else if(e instanceof SubString) {
@@ -118,31 +205,35 @@ public class _Evaluator {
 		else if(e instanceof BaseDispatch){
 			
 			if(e instanceof Dispatch) {
+			
 				Dispatch d = (Dispatch)e;
-				this.code += "({\n";
+			/*	
 				if(d.getObject() instanceof Symbol) {
 					
-					this.code += String.format("((TF_M%d_%s_%s)(self->rtti->vtable[%d]))",
+					this.code += String.format("((TF_M%d_%s_%s)(",
 							d.getMethod().getParent().getName().length(),
 							d.getMethod().getParent().getName(),
-							d.getMethod().getName(),
-							this.vt.get(d.getMethod().getParent()).get(d.getMethod())
-							);
-					this.code += String.format("((struct Ti*)self");
+							d.getMethod().getName());
+					evaluate(d.getObject());
+					this.code += String.format("->rtti->vtable[%d]))",
+							this.vt.get(d.getMethod().getParent()).get(d.getMethod()));
+							
+					this.code += String.format("((%s)", _FuncLibrary.convert(d.getObject().getTypeData().getName()));
+					evaluate(d.getObject());
+					this.code += ", ";
 					if(d.getArguments()!=null && d.getArguments().size()!=0) {
 						this.code += " ";
 						for(Expression arg : d.getArguments()) {
 							evaluate(arg);
 							this.code +=", ";
 						}
-						this.code = this.code.substring(0, this.code.length()-2);
 					}
-					
+					this.code = this.code.substring(0, this.code.length()-2);
 					this.code += ")";
 				}
 				
 				if(! (d.getObject() instanceof Symbol)) {
-					
+					this.code += "({\n";
 					this.code += String.format("%s _t%d = ",
 							_FuncLibrary.convert(d.getObject().getType()),
 							this.temp_pos);
@@ -152,7 +243,7 @@ public class _Evaluator {
 					evaluate(d.getObject());
 					this.code += ";\n";
 					
-					this.code += String.format("((TF_M%d_%s_%s)(%s->rtti->vtable[%d]))((%s)_t2, ",
+					this.code += String.format("((TF_M%d_%s_%s)(%s->rtti->vtable[%d]))((%s)%s, ",
 							d.getObject().getType().length(),
 							d.getObject().getTypeData().getName(),
 							d.getMethod().getName(),
@@ -160,6 +251,7 @@ public class _Evaluator {
 							this.vt.get(d.getObject().getTypeData()).get(d.getMethod()),
 							_FuncLibrary.convert(d.getObject().getTypeData().getName()),
 							this.temp_var.get(d.getObject()));
+					
 					for(Expression arg : d.getArguments()) {
 						evaluate(arg);
 						this.code += ", ";
@@ -170,7 +262,31 @@ public class _Evaluator {
 				
 					
 				}
-				this.code += "});";
+				*/
+				
+				if(d.getObject() instanceof Symbol) {
+					this.code += String.format("((TF_M%d_%s_%s)(",
+							d.getObject().getTypeData().getName().length(),
+							d.getObject().getTypeData().getName(),
+							d.getMethod().getName());
+					evaluate(d.getObject());
+					this.code += String.format("->rtti->vtable[%d]))",
+							this.vt.get(d.getObject().getTypeData()).get(d.getMethod()));
+					
+					this.code += String.format("((%s)", _FuncLibrary.convert(d.getObject().getTypeData().getName()));
+					evaluate(d.getObject());
+					this.code += ", ";
+					if(d.getArguments()!=null && d.getArguments().size()!=0) {
+						for(Expression arg : d.getArguments()) {
+							evaluate(arg);
+							this.code +=", ";
+						}
+					}
+					this.code = this.code.substring(0, this.code.length()-2);
+					this.code += ")";
+							
+				}
+				
 			}
 			else if(e instanceof StaticDispatch){
 				StaticDispatch sd = (StaticDispatch)e;
@@ -209,13 +325,30 @@ public class _Evaluator {
 		else if(e instanceof BinaryOp) {
 			if(e instanceof Addition) {
 				Addition add = (Addition)e;
-				this.code += "(";
-				evaluate(add.getE1());
-				this.code += ")";
-				this.code += "+";
-				this.code += "(";
-				evaluate(add.getE2());
-				this.code += ")";
+				if(add.getE1().getTypeData().equals("Int") &&
+						add.getE2().getTypeData().equals("Int")) {
+					this.code += "(";
+					evaluate(add.getE1());
+					this.code += ")";
+					this.code += "+";
+					this.code += "(";
+					evaluate(add.getE2());
+					this.code += ")";
+				}
+				else if(add.getE1().getTypeData().equals("String") &&
+						add.getE2().getTypeData().equals("String")) {
+				
+				}
+				else if(add.getE1().getTypeData().equals("String") &&
+						add.getE2().getTypeData().equals("Int")) {
+					
+				}
+				else if(add.getE1().getTypeData().equals("Int") &&
+						add.getE2().getTypeData().equals("String")) {
+				}
+				else {
+					
+				}
 			}
 			else if(e instanceof Subtraction) {
 				Subtraction sub = (Subtraction)e;

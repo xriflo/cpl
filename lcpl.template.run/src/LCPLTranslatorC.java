@@ -27,9 +27,9 @@ public class LCPLTranslatorC {
 		
 		/* object layouts: pointer to RTTI followed by attributes */
 		String objectLayouts;
-		_RTTI_Layout rttiL = new _RTTI_Layout();
-		rttiL.generateLayoutCode(p);
-		objectLayouts = rttiL.getLayoutCode();
+		_Object_Layout ol = new _Object_Layout();
+		ol.generateObjectLayoutCode(p);
+		objectLayouts =ol.getObjLayoutCode();
 		
 		/* static data : class names, as strings */
 		String classNames;
@@ -54,38 +54,37 @@ public class LCPLTranslatorC {
 		_RTTI_Layout rtti = new _RTTI_Layout();
 		rtti.generateLayoutCode(p);
 		vtables = rtti.getLayoutCode();
-		/*
-		System.out.println("==========");
-		for(LCPLClass c: rtti.vt.keySet()) {
-			System.out.print(c.getName()+":{");
-			HashMap<Method, Integer> vtc = rtti.vt.get(c);
-			for(Method m : vtc.keySet()) {
-				System.out.print("["+m.getName()+","+vtc.get(m)+"],");
-			}
-			System.out.println();
-		}
-		System.out.println("==========");
-		*/
+		
 		/* definitions of methods in the program, including constructors */
 		String constructors;
 		//"void Main_init(struct TMain *self){ IO_init((struct TIO*)self); } \n";
 		_ClassInit ci = new _ClassInit(rtti.vt, gsr.getLiterals());
 		ci.generateMethodsCode(p, rtti.getSortedClassesList());
-	
 		constructors = ci.getInitMethodsCode();
 		
-		String methods=                 "void M4_Main_main(struct TMain *self) \n"
-				                      + "{\n  typedef struct TIO* (*TF1)(struct TIO *, struct TString *); \n"
-				                      + "  ((TF1)(self->rtti->vtable[5])) ((struct TIO *)self,&SC1); \n} \n";
-									  /* [out "Hello world!"] is a dispatch to the method "out String -> IO" inherited from "IO" */
-		
-		/* create a new Main object and call its main method */
 		String startup=                 "void startup(void) { struct TMain *main=__lcpl_new(&RMain); M4_Main_main(main); } \n";
-		System.out.println(constructors);
+		System.out.println(headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+startup);
 		//System.out.println(stringConstants);
-		System.out.println(headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+methods+startup);
-		return headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+methods+startup;
-		
+		/*
+		System.out.println("=======headers========");
+		System.out.println(headers);
+		System.out.println("=======stringConstanf========");
+		System.out.println(stringConstants);
+		System.out.println("=======objectLayou========");
+		System.out.println(objectLayouts);
+		System.out.println("=======classnames========");
+		System.out.println(classNames);
+		System.out.println("=======constructDecl========");
+		System.out.println(constructorDeclarations);
+		System.out.println("=======methodDecl========");
+		System.out.println(methodDeclarations);
+		System.out.println("=======vtables========");
+		System.out.println(vtables);
+		System.out.println("=======constructors========");
+		System.out.println(constructors);
+		System.out.println("=======startup========");
+		System.out.println(startup);*/
+		return headers+stringConstants+objectLayouts+classNames+constructorDeclarations+methodDeclarations+vtables+constructors+startup;
 		
 	}
 }
