@@ -30,7 +30,11 @@ public class _Evaluator {
 			
 			
 			if(b.getExpressions().size()==1) {
+				//if(b.getExpressions().get(0) instanceof LocalDefinition)
+					//this.code += "({\n";
 				evaluate(b.getExpressions().get(0));
+				//if(b.getExpressions().get(0) instanceof LocalDefinition)
+					//this.code += "\n})";
 			}
 			else {
 				this.code += "({\n";
@@ -38,7 +42,7 @@ public class _Evaluator {
 					evaluate(expr);
 					this.code += ";\n";
 				}
-				this.code += "\n})";
+				this.code += "\n});";
 			}
 			
 			
@@ -99,7 +103,9 @@ public class _Evaluator {
 			}
 			else if(c.getE1().getTypeData().getName().equals("Int") &&
 					c.getTypeData().getName().equals("String")) {
-				
+				this.code += "__lcpl_intToString(";
+				evaluate(c.getE1());
+				this.code += ")";
 			}
 			else if(c.getE1().getTypeData().getName().equals("String") &&
 					c.getTypeData().getName().equals("Int")) {
@@ -141,9 +147,9 @@ public class _Evaluator {
 				evaluate(ld.getInit());
 			}
 			this.code += ";\n";
-			this.code += "(";
+			this.code += "({";
 			evaluate(ld.getScope());
-			this.code += ");\n";
+			this.code += ";});\n";
 			
 			this.code += "})\n";
 		}
@@ -207,31 +213,6 @@ public class _Evaluator {
 			if(e instanceof Dispatch) {
 			
 				Dispatch d = (Dispatch)e;
-			/*	
-				if(d.getObject() instanceof Symbol) {
-					
-					this.code += String.format("((TF_M%d_%s_%s)(",
-							d.getMethod().getParent().getName().length(),
-							d.getMethod().getParent().getName(),
-							d.getMethod().getName());
-					evaluate(d.getObject());
-					this.code += String.format("->rtti->vtable[%d]))",
-							this.vt.get(d.getMethod().getParent()).get(d.getMethod()));
-							
-					this.code += String.format("((%s)", _FuncLibrary.convert(d.getObject().getTypeData().getName()));
-					evaluate(d.getObject());
-					this.code += ", ";
-					if(d.getArguments()!=null && d.getArguments().size()!=0) {
-						this.code += " ";
-						for(Expression arg : d.getArguments()) {
-							evaluate(arg);
-							this.code +=", ";
-						}
-					}
-					this.code = this.code.substring(0, this.code.length()-2);
-					this.code += ")";
-				}
-				
 				if(! (d.getObject() instanceof Symbol)) {
 					this.code += "({\n";
 					this.code += String.format("%s _t%d = ",
@@ -262,8 +243,36 @@ public class _Evaluator {
 				
 					
 				}
-				*/
 				
+				/*
+				if(!(d.getObject() instanceof Symbol)) {
+					//struct TIO* _t1 = __lcpl_new(&RIO);
+					this.code += "({\n";
+					this.code += String.format("%s _t%d = ",
+							_FuncLibrary.convert(d.getObject().getTypeData().getName()),
+							this.temp_pos);
+					this.temp_var.put(d.getObject(), "_t"+this.temp_pos);
+					evaluate(d.getObject());
+					this.code += ";\n";
+					this.code += String.format("((TF_M%d_%s_%s)(%s->rtti->vtable[%s]))",
+							d.getObject().getTypeData().getName().length(),
+							d.getObject().getTypeData().getName(),
+							d.getMethod().getName(),
+							this.temp_var.get(d.getObject()),
+							this.vt.get(d.getObject().getTypeData()).get(d.getMethod()));
+					
+					this.code += String.format("((%s)%s, ",
+							_FuncLibrary.convert(d.getObject().getTypeData().getName()),
+							this.temp_var.get(d.getObject()));
+					for(Expression arg : d.getArguments()) {
+						evaluate(arg);
+						this.code += ", ";
+					}
+					this.code += this.code.substring(0, this.code.length()-2);
+					this.code += ");";
+					this.code += "});\n";
+				
+				}*/
 				if(d.getObject() instanceof Symbol) {
 					this.code += String.format("((TF_M%d_%s_%s)(",
 							d.getObject().getTypeData().getName().length(),
@@ -325,8 +334,10 @@ public class _Evaluator {
 		else if(e instanceof BinaryOp) {
 			if(e instanceof Addition) {
 				Addition add = (Addition)e;
-				if(add.getE1().getTypeData().equals("Int") &&
-						add.getE2().getTypeData().equals("Int")) {
+				
+				if(add.getE1().getTypeData().getName().equals("Int") &&
+						add.getE2().getTypeData().getName().equals("Int")) {
+					
 					this.code += "(";
 					evaluate(add.getE1());
 					this.code += ")";
@@ -335,19 +346,23 @@ public class _Evaluator {
 					evaluate(add.getE2());
 					this.code += ")";
 				}
-				else if(add.getE1().getTypeData().equals("String") &&
-						add.getE2().getTypeData().equals("String")) {
-				
+				else if(add.getE1().getTypeData().getName().equals("String") &&
+						add.getE2().getTypeData().getName().equals("String")) {
+					this.code += "M6_String_concat(";
+					evaluate(add.getE1());
+					this.code += ",";
+					evaluate(add.getE2());
+					this.code += ")";
 				}
-				else if(add.getE1().getTypeData().equals("String") &&
-						add.getE2().getTypeData().equals("Int")) {
+				else if(add.getE1().getTypeData().getName().equals("String") &&
+						add.getE2().getTypeData().getName().equals("Int")) {
 					
 				}
-				else if(add.getE1().getTypeData().equals("Int") &&
-						add.getE2().getTypeData().equals("String")) {
+				else if(add.getE1().getTypeData().getName().equals("Int") &&
+						add.getE2().getTypeData().getName().equals("String")) {
 				}
 				else {
-					
+					System.out.println("\n\\Nasol\n");
 				}
 			}
 			else if(e instanceof Subtraction) {
